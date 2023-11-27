@@ -19,6 +19,14 @@
         </configuration>
       </plugin>
       <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>3.0.0-M5</version> <!-- Use the latest version available -->
+            <configuration>
+                <argLine>-Xmx512m</argLine> <!-- Adjust the memory as needed -->
+            </configuration>
+        </plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
         <version>2.20</version>
