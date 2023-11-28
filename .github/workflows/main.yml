@@ -40,61 +40,61 @@ jobs:
                     ./target/*.war
                     *.sql
 
-    terraform:
-        name: 'Terraform'
-        needs: 'Build'
-        if: github.event_name == 'push' && contains(github.event.paths, './terraform/')
-        runs-on: ubuntu-latest
+    # terraform:
+    #     name: 'Terraform'
+    #     needs: 'Build'
+    #     if: github.event_name == 'push' && contains(github.event.paths, './terraform/')
+    #     runs-on: ubuntu-latest
     
-        # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
-        # Set the working directory to main for the config files
-        defaults:
-          run:
-            shell: bash
-            working-directory: ./terraform
+    #     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    #     # Set the working directory to main for the config files
+    #     defaults:
+    #       run:
+    #         shell: bash
+    #         working-directory: ./terraform
 
-        permissions:
-            pull-requests: write
+    #     permissions:
+    #         pull-requests: write
     
-        steps:
-        # Checkout the repository to the GitHub Actions runner
-        - name: Checkout
-          uses: actions/checkout@v4.1.1
+    #     steps:
+    #     # Checkout the repository to the GitHub Actions runner
+    #     - name: Checkout
+    #       uses: actions/checkout@v4.1.1
     
-        # Install the preferred version of Terraform CLI 
-        - name: Setup Terraform
-          uses: hashicorp/setup-terraform@v3
+    #     # Install the preferred version of Terraform CLI 
+    #     - name: Setup Terraform
+    #       uses: hashicorp/setup-terraform@v3
 
-        - name: Terraform fmt
-          id: fmt
-          run: terraform fmt -check
-          continue-on-error: true
+    #     - name: Terraform fmt
+    #       id: fmt
+    #       run: terraform fmt -check
+    #       continue-on-error: true
     
-        # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
-        - name: Terraform Init
-          id: init
-          env:
-            ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-            ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-            ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-            ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-          run: terraform init
+    #     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+    #     - name: Terraform Init
+    #       id: init
+    #       env:
+    #         ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+    #         ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+    #         ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+    #         ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+    #       run: terraform init
 
-        - name: Terraform Validate
-          id: validate
-          run: terraform validate -no-color
+    #     - name: Terraform Validate
+    #       id: validate
+    #       run: terraform validate -no-color
     
-        # Run a terraform plan for pull requests only
-        - name: Terraform Plan
-          id: plan
-          env:
-            ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-            ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-            ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-            ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-          if: github.event_name == 'pull_request'
-          run: terraform plan -no-color
-          continue-on-error: true
+    #     # Run a terraform plan for pull requests only
+    #     - name: Terraform Plan
+    #       id: plan
+    #       env:
+    #         ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+    #         ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+    #         ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+    #         ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+    #       if: github.event_name == 'pull_request'
+    #       run: terraform plan -no-color
+    #       continue-on-error: true
         
         # Add a comment to pull requests with plan results
         # - name: add-plan-comment
@@ -128,11 +128,33 @@ jobs:
         #       })
     
           # On push to main, build or change infrastructure according to Terraform configuration files
-        - name: Terraform Apply
-          if: github.ref == 'refs/heads/s' && github.event_name == 'push'
-          env:
-            ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-            ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-            ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-            ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-          run: terraform apply -auto-approve
+        # - name: Terraform Apply
+        #   if: github.ref == 'refs/heads/s' && github.event_name == 'push'
+        #   env:
+        #     ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+        #     ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+        #     ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+        #     ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+        #   run: terraform apply -auto-approve
+
+
+    deployToProd:
+      name: 🚀 Deploy to Prod
+      runs-on: ubuntu-latest
+      environment: 
+       name: deploy
+       url: https://myshuttle-webapp-demo.azurewebsites.net/
+      needs: ['Build']
+
+      steps:
+        - name: Download artifact from build job
+          uses: actions/download-artifact@v3
+          with:
+            name: "myArtifact_${{ steps.set_date.outputs.DATE }}"
+
+        - name: Azure WebApp
+          uses: Azure/webapps-deploy@v3
+          with:
+            app-name: myshuttle-webapp-demo
+            package: ./target/
+            publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
