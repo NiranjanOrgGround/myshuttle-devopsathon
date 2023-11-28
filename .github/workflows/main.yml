@@ -43,6 +43,7 @@ jobs:
     terraform:
         name: 'Terraform'
         needs: 'Build'
+        if: github.event_name == 'push' && contains(github.event.paths, './terraform/')
         runs-on: ubuntu-latest
     
         # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
