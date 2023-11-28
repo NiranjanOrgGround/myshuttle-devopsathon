@@ -140,7 +140,7 @@ jobs:
 
     deployToProd:
       name: 🚀 Deploy to Prod
-      runs-on: ubuntu-latest
+      runs-on: ubuntu-latest 
       environment: 
        name: deploy
        url: https://myshuttle-webapp-demo.azurewebsites.net/
@@ -150,7 +150,7 @@ jobs:
         - name: Download artifact from build job
           uses: actions/download-artifact@v3
           with:
-            name: "myArtifact_${{ steps.set_date.outputs.DATE }}"
+            name: "myArtifact_${{ needs.Build.outputs.set_date }}"
 
         - name: Azure WebApp
           uses: Azure/webapps-deploy@v3
