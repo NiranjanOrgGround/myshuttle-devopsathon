@@ -4,9 +4,9 @@
 
 
 locals {
-  resource_group_name   = "${var.naming_prefix}-rg-${random_integer.name_suffix.result}"
-  app_service_plan_name = "${var.naming_prefix}-asp-${random_integer.name_suffix.result}"
-  app_service_name      = "${var.naming_prefix}-webapp-${random_integer.name_suffix.result}"
+  resource_group_name   = "${var.naming_prefix}-rg"
+  app_service_plan_name = "${var.naming_prefix}-asp"
+  app_service_name      = "${var.naming_prefix}-webapp"
   mysql_server_name     = "${var.naming_prefix}-mysqlserver"
 }
 
