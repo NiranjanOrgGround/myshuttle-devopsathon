@@ -137,6 +137,7 @@ jobs:
     deployToProd:
       name: 🚀 Deploy to Prod
       runs-on: ubuntu-latest 
+      if: github.ref == 'refs/heads/s' && github.event_name == 'push'
       environment: 
        name: deploy
        url: https://myshuttle-webapp-demo.azurewebsites.net/myshuttledev
