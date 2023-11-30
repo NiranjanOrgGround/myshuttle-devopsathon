@@ -140,7 +140,7 @@ jobs:
       if: github.ref == 'refs/heads/s' && github.event_name == 'push'
       environment: 
        name: deploy
-       url: https://myshuttle-webapp-demo.azurewebsites.net/myshuttledev
+       url: https://myshuttle-webapp.azurewebsites.net/myshuttledev
       needs: ['Build', 'terraform']
 
       steps:
