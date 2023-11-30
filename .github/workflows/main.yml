@@ -1,10 +1,10 @@
 name: Java CI
 
 on:
-    # push:
-    #     branches: ['s']
-    # pull_request:
-    #     branches: ['s']
+    push:
+        branches: ['s']
+    pull_request:
+        branches: ['s']
     workflow_dispatch:
  
 
