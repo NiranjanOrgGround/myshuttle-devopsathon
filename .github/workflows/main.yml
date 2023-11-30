@@ -114,16 +114,16 @@ jobs:
           uses: azure/login@v1
           if: github.ref == 'refs/heads/s' && github.event_name == 'push'
           with:
-            creds: '${{ secrets.AZURE_CREDENTIALS }}'
+            creds: '{"clientId":"${{ secrets.ARM_CLIENT_ID }}","clientSecret":"${{ secrets.ARM_CLIENT_SECRET }}","subscriptionId":"${{ secrets.ARM_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.ARM_TENANT_ID }}"}'
   
-        - name: Azure CLI script
-          uses: azure/CLI@v1
-          if: github.ref == 'refs/heads/s' && github.event_name == 'push'
-          id: AZURE_CREDENTIAL
-          with:
-            azcliversion: latest
-            inlineScript: |
-              echo "AZ_CRED=$(az ad sp create-for-rbac --name myshuttle-mysqlserver --role contributor --scopes /subscriptions/b2bb726b-8781-4706-b78e-953ca038b27b/resourceGroups/myshuttle-rg --sdk-auth)" >> $GITHUB_OUTPUT
+        # - name: Azure CLI script
+        #   uses: azure/CLI@v1
+        #   if: github.ref == 'refs/heads/s' && github.event_name == 'push'
+        #   id: AZURE_CREDENTIAL
+        #   with:
+        #     azcliversion: latest
+        #     inlineScript: |
+        #       echo "AZ_CRED=$(az ad sp create-for-rbac --name myshuttle-mysqlserver --role contributor --scopes /subscriptions/b2bb726b-8781-4706-b78e-953ca038b27b/resourceGroups/myshuttle-rg --sdk-auth)" >> $GITHUB_OUTPUT
 
         - name: Azure CLI script
           uses: azure/CLI@v1
