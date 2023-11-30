@@ -161,7 +161,7 @@ jobs:
             package: ./target/
             publish-profile: ${{ needs.terraform.outputs.PUBLISH_PROFILE }}
             
-        - uses: azure/mysql@v1
+        - uses: azure/mysql@v1.3.0
           with:
             server-name: myshuttle-mysqlserver.mysql.database.azure.com
             username: myshuttle@myshuttle-mysqlserver
