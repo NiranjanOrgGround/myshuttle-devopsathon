@@ -1,10 +1,10 @@
 name: Java CI
 
 on:
-    push:
-        branches: ['s']
-    pull_request:
-        branches: ['s']
+    # push:
+    #     branches: ['s']
+    # pull_request:
+    #     branches: ['s']
     workflow_dispatch:
  
 
@@ -40,110 +40,106 @@ jobs:
                     ./target/*.war
                     *.sql
 
-    # terraform:
-    #     name: 'Terraform'
-    #     needs: 'Build'
-    #     if: github.event_name == 'push' && contains(github.event.paths, './terraform/')
-    #     runs-on: ubuntu-latest
+    terraform:
+        name: 'Terraform'
+        needs: 'Build'
+        # if: github.event_name == 'push' && contains(github.event.paths, './terraform/')
+        runs-on: ubuntu-latest
+        outputs:
+            AZURE_CREDENTIAL: ${{ steps.AZURE_CREDENTIAL.outputs.AZ_CRED }}
+            PUBLISH_PROFILE: ${{ steps.AZURE_WEBAPP_PUBLISH_PROFILE.outputs.AZ_PUBLISH_PROFILE }} 
     
-    #     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
-    #     # Set the working directory to main for the config files
-    #     defaults:
-    #       run:
-    #         shell: bash
-    #         working-directory: ./terraform
+        # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+        # Set the working directory to main for the config files
+        defaults:
+          run:
+            shell: bash
+            working-directory: ./terraform
 
-    #     permissions:
-    #         pull-requests: write
+        permissions:
+            pull-requests: write
     
-    #     steps:
-    #     # Checkout the repository to the GitHub Actions runner
-    #     - name: Checkout
-    #       uses: actions/checkout@v4.1.1
+        steps:
+        # Checkout the repository to the GitHub Actions runner
+        - name: Checkout
+          uses: actions/checkout@v4.1.1
     
-    #     # Install the preferred version of Terraform CLI 
-    #     - name: Setup Terraform
-    #       uses: hashicorp/setup-terraform@v3
+        # Install the preferred version of Terraform CLI 
+        - name: Setup Terraform
+          uses: hashicorp/setup-terraform@v3
 
-    #     - name: Terraform fmt
-    #       id: fmt
-    #       run: terraform fmt -check
-    #       continue-on-error: true
+        - name: Terraform fmt
+          id: fmt
+          run: terraform fmt -check
+          continue-on-error: true
     
-    #     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
-    #     - name: Terraform Init
-    #       id: init
-    #       env:
-    #         ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-    #         ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-    #         ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-    #         ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-    #       run: terraform init
+        # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+        - name: Terraform Init
+          id: init
+          env:
+            ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+            ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+            ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+            ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          run: terraform init
 
-    #     - name: Terraform Validate
-    #       id: validate
-    #       run: terraform validate -no-color
+        - name: Terraform Validate
+          id: validate
+          run: terraform validate -no-color
     
-    #     # Run a terraform plan for pull requests only
-    #     - name: Terraform Plan
-    #       id: plan
-    #       env:
-    #         ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-    #         ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-    #         ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-    #         ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-    #       if: github.event_name == 'pull_request'
-    #       run: terraform plan -no-color
-    #       continue-on-error: true
-        
-        # Add a comment to pull requests with plan results
-        # - name: add-plan-comment
-        #   id: comment
-        #   uses: actions/github-script@v7
-        #   if: github.event_name == 'pull_request'
-        #   env:
-        #     PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
-        #     tf_actions_working_dir: "${{ github.repository }}/terraform"
-        #   with:
-        #     github-token: ${{ secrets.GITHUB_TOKEN }}
-        #     script: |
-        #       const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
-        #       #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
-        #       #### Terraform Validation 🤖${{ steps.validate.outputs.stdout }}
-        #       #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
-           
-        #       <details><summary>Show Plan</summary>
-              
-        #       \`\`\`${process.env.PLAN}\`\`\`
-              
-        #       </details>
-              
-        #       *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ env.tf_actions_working_dir }}\`, Workflow: \`${{ github.workflow }}\`*`;
-                
-        #       github.issues.createComment({
-        #         issue_number: context.issue.number,
-        #         owner: context.repo.owner,
-        #         repo: context.repo.repo,
-        #         body: output
-        #       })
+        # Run a terraform plan for pull requests only
+        - name: Terraform Plan
+          id: plan
+          env:
+            ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+            ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+            ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+            ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          if: github.event_name == 'pull_request'
+          run: terraform plan -no-color
+          continue-on-error: true
     
-          # On push to main, build or change infrastructure according to Terraform configuration files
-        # - name: Terraform Apply
-        #   if: github.ref == 'refs/heads/s' && github.event_name == 'push'
-        #   env:
-        #     ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-        #     ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-        #     ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-        #     ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-        #   run: terraform apply -auto-approve
+        # On push to main, build or change infrastructure according to Terraform configuration files
+        - name: Terraform Apply
+          if: github.ref == 'refs/heads/s' && github.event_name == 'push'
+          env:
+            ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+            ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+            ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+            ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          run: terraform apply -auto-approve
 
+        # login to azure cli
+        - name: Azure login
+          uses: azure/login@v1
+          with:
+            client-id: ${{ secrets.AZURE_CLIENT_ID }}
+            tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+            subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+            enable-AzPSSession: true
+  
+        - name: Azure CLI script
+          uses: azure/CLI@v1
+          id: AZURE_CREDENTIAL
+          with:
+            azcliversion: latest
+            inlineScript: |
+              echo "AZ_CRED=$(az ad sp create-for-rbac --name myshuttle-mysqlserver --role contributor --scopes /subscriptions/b2bb726b-8781-4706-b78e-953ca038b27b/resourceGroups/myshuttle-rg --sdk-auth)" >> $GITHUB_OUTPUT
 
+        - name: Azure CLI script
+          uses: azure/CLI@v1
+          id: AZURE_WEBAPP_PUBLISH_PROFILE
+          with:
+            azcliversion: latest
+            inlineScript: |
+              echo "AZ_PUBLISH_PROFILE=$(az webapp deployment list-publishing-profiles -g 'myshuttle-rg' -n 'myshuttle-webapp' --xml)" >> $GITHUB_OUTPUT
+    
     deployToProd:
       name: 🚀 Deploy to Prod
       runs-on: ubuntu-latest 
       environment: 
        name: deploy
-       url: https://myshuttle-webapp-demo.azurewebsites.net/
+       url: https://myshuttle-webapp-demo.azurewebsites.net/myshuttledev
       needs: ['Build']
 
       steps:
@@ -157,11 +153,12 @@ jobs:
           with:
             app-name: myshuttle-webapp-demo
             package: ./target/
-            publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+            publish-profile: ${{ needs.terraform.outputs.PUBLISH_PROFILE }}
 
-        - uses: azure/login@v1
-          with:
-            creds: ${{ secrets.AZURE_CREDENTIALS }}
+        # - uses: azure/login@v1
+        #   with:
+        #     creds: ${{ needs.terraform.outputs.AZURE_CREDENTIAL }}
+            
         - uses: azure/mysql@v1
           with:
             server-name: myshuttle-mysqlserver.mysql.database.azure.com
