@@ -140,7 +140,7 @@ jobs:
       if: github.ref == 'refs/heads/s' && github.event_name == 'push'
       environment: 
        name: deploy
-       url: https://myshuttle-webapp-demo.azurewebsites.net/myshuttledev
+       url: https://myshuttle-webapp.azurewebsites.net/myshuttledev
       needs: ['Build', 'terraform']
 
       steps:
@@ -161,7 +161,7 @@ jobs:
             package: ./target/
             publish-profile: ${{ needs.terraform.outputs.PUBLISH_PROFILE }}
             
-        - uses: azure/mysql@v1
+        - uses: azure/mysql@v1.3.0
           with:
             server-name: myshuttle-mysqlserver.mysql.database.azure.com
             username: myshuttle@myshuttle-mysqlserver
