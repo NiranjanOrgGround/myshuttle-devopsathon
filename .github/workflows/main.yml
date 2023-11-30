@@ -140,7 +140,7 @@ jobs:
       environment: 
        name: deploy
        url: https://myshuttle-webapp-demo.azurewebsites.net/myshuttledev
-      needs: ['terraform']
+      needs: ['Build', 'terraform']
 
       steps:
         - name: Download artifact from build job
