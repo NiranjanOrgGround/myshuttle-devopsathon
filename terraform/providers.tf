@@ -5,7 +5,7 @@ terraform {
       version = "3.82.0"
     }
   }
-    backend "azurerm" {
+  backend "azurerm" {
     resource_group_name      = "mystorage-account"
     storage_account_name     = "terraform1997"
     container_name           = "terraformstate"
