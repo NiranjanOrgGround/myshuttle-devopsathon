@@ -158,3 +158,15 @@ jobs:
             app-name: myshuttle-webapp-demo
             package: ./target/
             publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+
+        - uses: azure/login@v1
+          with:
+            creds: ${{ secrets.AZURE_CREDENTIALS }}
+        - uses: azure/mysql@v1
+          with:
+            server-name: myshuttle-mysqlserver.mysql.database.azure.com
+            username: myshuttle@myshuttle-mysqlserver
+            password: P@ssw0rd@123
+            # This is optional, you want to connect directly
+            database: alm
+            sql-file: './CreateMYSQLDB.sql'
