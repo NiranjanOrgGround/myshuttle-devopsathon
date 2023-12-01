@@ -1,0 +1,19 @@
+name: "Dependency Review"
+
+on:
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: [ "main" ]
+jobs:
+  analyze:
+    name: Dependency Analyze
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+     
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: 'Dependency Review'
+      uses: actions/dependency-review-action@v3
